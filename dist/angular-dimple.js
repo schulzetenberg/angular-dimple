@@ -1,4 +1,4 @@
-/*! angular-dimple - 2.0.1 - 2015-03-18
+/*! angular-dimple - 2.0.1 - 2016-05-16
 *   https://github.com/esripdx/angular-dimple
 *   Licensed ISC */
 angular.module('angular-dimple', [
@@ -39,13 +39,13 @@ angular.module('angular-dimple.area', [])
         if ($attrs.value) {
           area = chart.addSeries([$attrs.field], dimple.plot.area);
           graphController.filter($attrs);
-          area.lineMarkers = true;
+          area.lineMarkers = false;
         } else {
           var values = dimple.getUniqueValues($scope.data, $attrs.field);
           angular.forEach(values, function(value){
             area = chart.addSeries([$attrs.field], dimple.plot.area);
             graphController.filter($attrs);
-            area.lineMarkers = true;
+            area.lineMarkers = false;
           });
         }
         graphController.draw();
@@ -59,7 +59,6 @@ angular.module('angular-dimple.area', [])
     }
   };
 }]);
-
 
 angular.module('angular-dimple.bar', [])
 
@@ -94,7 +93,7 @@ angular.module('angular-dimple.bar', [])
 }]);
 angular.module('angular-dimple.graph', [])
 
-.directive('graph', [function () {
+.directive('graph', ['$window', function ($window) {
   return {
     restrict: 'E',
     replace: true,
@@ -129,10 +128,24 @@ angular.module('angular-dimple.graph', [])
       transclude(scope, function(clone){
         element.append(clone);
       });
+
+      scope.onResize = function() {
+        if (graphController.getAutoresize()){
+          var chart = graphController.getChart();
+          if (chart){
+            chart.draw(0, true);
+          }
+        }
+      };
+
+      angular.element($window).bind('resize', function() {
+          scope.onResize();
+      });
+
     },
     controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
       var chart;
-
+      var autoresize = false;
       var id = (Math.random() * 1e9).toString(36).replace(".", "_");
       $element.append('<div class="dimple-graph" id="dng-'+ id +'"></div>');
 
@@ -141,6 +154,7 @@ angular.module('angular-dimple.graph', [])
 
         var width = $attrs.width ? $attrs.width : '100%';
         var height = $attrs.height ? $attrs.height : '100%';
+        autoresize = $attrs.autoresize ? $attrs.autoresize.toLowerCase()==='true' : false;
 
         var svg = dimple.newSvg('#dng-'+ id +'', width, height);
         var data = $scope.data;
@@ -164,7 +178,34 @@ angular.module('angular-dimple.graph', [])
           for (var i = 0; i < palette.length; i++ ) {
             chart.assignColor(palette[i].name, palette[i].fill, palette[i].stroke, palette[i].opacity);
           }
+        } else {
+          chart.defaultColors = [
+            new dimple.color("#80B1D3"), // Blue
+            new dimple.color("#FB8072"), // Red
+            new dimple.color("#FDB462"), // Orange
+            new dimple.color("#B3DE69"), // Green
+            new dimple.color("#FFED6F"), // Yellow
+            new dimple.color("#BC80BD"), // Purple
+            new dimple.color("#8DD3C7"), // Turquoise
+            new dimple.color("#CCEBC5"), // Pale Blue
+            new dimple.color("#FFFFB3"), // Pale Yellow
+            new dimple.color("#BEBADA"), // Lavender
+            new dimple.color("#FCCDE5"), // Pink
+            new dimple.color("#D9D9D9"), // Grey
+            // Extra colors:
+            new dimple.color("#7171C6"),  // sgi slateblue
+            new dimple.color("#8E388E"),  // sgi beet
+            new dimple.color("#388E8E"),  // sgi teal
+            new dimple.color("#DCC7AA"),  // Beige
+            new dimple.color("#838B83"),  // Honeydew
+            new dimple.color("#71C671"),  // sgi chartreuse
+            new dimple.color("#8E8E38"),  // sgi olivedrab
+          ];
         }
+      };
+
+      this.getAutoresize = function (){
+        return autoresize;
       };
 
       this.getChart = function () {
@@ -203,6 +244,7 @@ angular.module('angular-dimple.graph', [])
     }]
   };
 }]);
+
 angular.module('angular-dimple.legend', [])
 
 .directive('graphLegend', [function () {
@@ -251,7 +293,7 @@ angular.module('angular-dimple.line', [])
         var filteredData;
         line = chart.addSeries([$attrs.field], dimple.plot.line);
         graphController.filter($attrs);
-        line.lineMarkers = true;
+        line.lineMarkers = false;
         graphController.draw();
       }
 
@@ -264,6 +306,7 @@ angular.module('angular-dimple.line', [])
     }
   };
 }]);
+
 angular.module('angular-dimple.r', [])
 
 .directive('r', [function () {
@@ -460,7 +503,11 @@ angular.module('angular-dimple.x', [])
           } else if ($attrs.type == 'Percent') {
             x = chart.addPctAxis('x', $attrs.field);
           } else if ($attrs.type == 'Time') {
-            x = chart.addTimeAxis('x', $attrs.field);
+            if($attrs.input){
+              x = chart.addTimeAxis('x', $attrs.field, $attrs.input);
+            } else {
+              x = chart.addTimeAxis('x', $attrs.field);
+            }
             if ($attrs.format) {
               x.tickFormat = $attrs.format;
             }
@@ -476,7 +523,11 @@ angular.module('angular-dimple.x', [])
           } else if ($attrs.type == 'Percent') {
             x = chart.addPctAxis('x', $attrs.field);
           } else if ($attrs.type == 'Time') {
-            x = chart.addTimeAxis('x', $attrs.field);
+            if($attrs.input){
+              x = chart.addTimeAxis('x', $attrs.field, $attrs.input);
+            } else {
+              x = chart.addTimeAxis('x', $attrs.field);
+            }
             if ($attrs.format) {
               x.tickFormat = $attrs.format;
             }
@@ -503,6 +554,7 @@ angular.module('angular-dimple.x', [])
     }
   };
 }]);
+
 angular.module('angular-dimple.y', [])
 
 .directive('y', [function () {
@@ -523,7 +575,11 @@ angular.module('angular-dimple.y', [])
           } else if ($attrs.type == 'Percent') {
             y = chart.addPctAxis('y', $attrs.field);
           } else if ($attrs.type == 'Time') {
-            y = chart.addTimeAxis('x', $attrs.field);
+            if($attrs.input){
+              y = chart.addTimeAxis('y', $attrs.field, $attrs.input);
+            } else {
+              y = chart.addTimeAxis('y', $attrs.field);
+            }
             if ($attrs.format) {
               y.tickFormat = $attrs.format;
             }
@@ -539,7 +595,11 @@ angular.module('angular-dimple.y', [])
           } else if ($attrs.type == 'Percent') {
             y = chart.addPctAxis('y', $attrs.field);
           } else if ($attrs.type == 'Time') {
-            y = chart.addTimeAxis('x', $attrs.field);
+            if($attrs.input){
+              y = chart.addTimeAxis('y', $attrs.field, $attrs.input);
+            } else {
+              y = chart.addTimeAxis('y', $attrs.field);
+            }
             if ($attrs.format) {
               y.tickFormat = $attrs.format;
             }
