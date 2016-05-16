@@ -145,6 +145,9 @@ angular.module('angular-dimple.graph', [])
     },
     controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
       var chart;
+      var legend;
+      var legendField;
+      var filterValues = [null];
       var autoresize = false;
       var id = (Math.random() * 1e9).toString(36).replace(".", "_");
       $element.append('<div class="dimple-graph" id="dng-'+ id +'"></div>');
@@ -213,11 +216,53 @@ angular.module('angular-dimple.graph', [])
       };
 
       this.setData = function () {
-        chart.data = $scope.data;
+        if(filterValues[0] !== null){
+          chart.data = dimple.filterData($scope.data, legendField, filterValues);
+        } else {
+          chart.data = $scope.data;
+        }
+      };
+
+      this.setLegend = function (newLegend) {
+        legend = newLegend;
       };
 
       this.draw = function () {
         chart.draw();
+      };
+
+      this.legend = function (attrs) {
+        if (!attrs.field) return;
+        legendField = attrs.field;
+        chart.legends = []; // Orphan the legend
+        filterValues = dimple.getUniqueValues($scope.data, legendField);
+
+        // Add a click event to each rectangle
+        legend.shapes.selectAll("rect").on("click", function (e) {
+          var hide = false;
+          var newFilters = [];
+
+          // If the filters contain the clicked shape hide it
+          filterValues.forEach(function (f) {
+            if (f === e.aggField.slice(-1)[0]) {
+              hide = true;
+            } else {
+              newFilters.push(f);
+            }
+          });
+
+          if (hide) {
+            d3.select(this).style("opacity", 0.2);
+          } else {
+            newFilters.push(e.aggField.slice(-1)[0]);
+            d3.select(this).style("opacity", 0.8);
+          }
+
+          filterValues = newFilters;
+          chart.data = dimple.filterData($scope.data, legendField, filterValues);
+          // Re-draw chart with 500ms animation speed
+          chart.draw(500);
+        });
       };
 
       this.getID = function () {
@@ -264,7 +309,8 @@ angular.module('angular-dimple.legend', [])
         var height = $attrs.height ? $attrs.height : "10%";
         var width = $attrs.width ? $attrs.width : "90%";
         var position = $attrs.position ? $attrs.position : 'left';
-        chart.addLegend(left, top, width, height, position);
+        var legend = chart.addLegend(left, top, width, height, position);
+        graphController.setLegend(legend);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -275,6 +321,7 @@ angular.module('angular-dimple.legend', [])
     }
   };
 }]);
+
 angular.module('angular-dimple.line', [])
 
 .directive('line', [function () {
@@ -295,6 +342,7 @@ angular.module('angular-dimple.line', [])
         graphController.filter($attrs);
         line.lineMarkers = false;
         graphController.draw();
+        graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -374,6 +422,7 @@ angular.module('angular-dimple.ring', [])
         }
         graphController.filter($attrs);
         graphController.draw();
+        graphController.legend($attrs);
       }
 
       $scope.$watch('data', function(newValue, oldValue) {
@@ -384,7 +433,6 @@ angular.module('angular-dimple.ring', [])
     }
   };
 }]);
-
 
 angular.module('angular-dimple.scatter-plot', [])
 
@@ -408,6 +456,7 @@ angular.module('angular-dimple.scatter-plot', [])
         scatterPlot.aggregate = dimple.aggregateMethod.avg;
         graphController.filter($attrs);
         graphController.draw();
+        graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -418,6 +467,7 @@ angular.module('angular-dimple.scatter-plot', [])
     }
   };
 }]);
+
 angular.module('angular-dimple.stacked-area', [])
 
 .directive('stackedArea', [function () {
@@ -441,6 +491,7 @@ angular.module('angular-dimple.stacked-area', [])
         graphController.filter($attrs);
         area.lineMarkers = false;
         graphController.draw();
+        graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -451,6 +502,7 @@ angular.module('angular-dimple.stacked-area', [])
     }
   };
 }]);
+
 angular.module('angular-dimple.stacked-bar', [])
 
 .directive('stackedBar', [function () {
@@ -473,6 +525,7 @@ angular.module('angular-dimple.stacked-bar', [])
         }
         graphController.filter($attrs);
         graphController.draw();
+        graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -483,6 +536,7 @@ angular.module('angular-dimple.stacked-bar', [])
     }
   };
 }]);
+
 angular.module('angular-dimple.x', [])
 
 .directive('x', [function () {
