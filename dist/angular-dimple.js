@@ -1,4 +1,4 @@
-/*! angular-dimple - 2.0.1 - 2016-05-16
+/*! angular-dimple - 2.0.1 - 2016-07-29
 *   https://github.com/esripdx/angular-dimple
 *   Licensed ISC */
 angular.module('angular-dimple', [
@@ -227,6 +227,10 @@ angular.module('angular-dimple.graph', [])
         legend = newLegend;
       };
 
+      this.legendExists = function () {
+        return Boolean(legend);
+      };
+      
       this.draw = function () {
         chart.draw();
       };
@@ -342,7 +346,8 @@ angular.module('angular-dimple.line', [])
         graphController.filter($attrs);
         line.lineMarkers = false;
         graphController.draw();
-        graphController.legend($attrs);
+        var legendExists = graphController.legendExists();
+        if(legendExists) graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -422,7 +427,8 @@ angular.module('angular-dimple.ring', [])
         }
         graphController.filter($attrs);
         graphController.draw();
-        graphController.legend($attrs);
+        var legendExists = graphController.legendExists();
+        if(legendExists) graphController.legend($attrs);
       }
 
       $scope.$watch('data', function(newValue, oldValue) {
@@ -456,7 +462,8 @@ angular.module('angular-dimple.scatter-plot', [])
         scatterPlot.aggregate = dimple.aggregateMethod.avg;
         graphController.filter($attrs);
         graphController.draw();
-        graphController.legend($attrs);
+        var legendExists = graphController.legendExists();
+        if(legendExists) graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -491,7 +498,8 @@ angular.module('angular-dimple.stacked-area', [])
         graphController.filter($attrs);
         area.lineMarkers = false;
         graphController.draw();
-        graphController.legend($attrs);
+        var legendExists = graphController.legendExists();
+        if(legendExists) graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
@@ -525,7 +533,8 @@ angular.module('angular-dimple.stacked-bar', [])
         }
         graphController.filter($attrs);
         graphController.draw();
-        graphController.legend($attrs);
+        var legendExists = graphController.legendExists();
+        if(legendExists) graphController.legend($attrs);
       }
 
       $scope.$watch('dataReady', function(newValue, oldValue) {
