@@ -1,4 +1,4 @@
-/*! angular-dimple - 2.0.1 - 2016-07-29
+/*! angular-dimple - 2.0.1 - 2016-08-24
 *   https://github.com/esripdx/angular-dimple
 *   Licensed ISC */
 angular.module('angular-dimple', [
@@ -165,8 +165,10 @@ angular.module('angular-dimple.graph', [])
         // create the dimple chart using the d3 selection of our <svg> element
         chart = new dimple.chart(svg, data);
 
-        if ($attrs.margin) {
-          chart.setMargins($attrs.margin);
+        // ex. '60, 60, 20, 40'
+        if($attrs.margin){
+          var margin = $attrs.margin.split(',').map(Number); // Convert string to array of #s
+          chart.setMargins(margin[0], margin[1], margin[2], margin[3]);
         } else {
           chart.setMargins(60, 60, 20, 40);
         }
@@ -230,7 +232,7 @@ angular.module('angular-dimple.graph', [])
       this.legendExists = function () {
         return Boolean(legend);
       };
-      
+
       this.draw = function () {
         chart.draw();
       };
