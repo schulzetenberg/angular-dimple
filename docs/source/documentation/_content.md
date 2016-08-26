@@ -159,7 +159,7 @@ The `<bar>` directive plots your data as series of bars. The `field` attribute (
 ## Stacked Bar
 <a class="example-link" href="../examples/#/stacked-bar">example</a>
 
-The `<bar>` directive plots your data as series of bars. The `field` attribute (required) will define the field from your data to plot to the graph. The `value` attribute will plot the bars to your graph  for that value in the field. If no value is defined, or multiple bars are included in the graph, the data will plot as a stacked bar.
+The `<stacked-bar>` directive plots your data as series of stacked bars. The `field` attribute (required) will define the field from your data to plot to the graph. The `value` attribute will plot the bars to your graph  for that value in the field. If no value is defined, or multiple bars are included in the graph, the data will plot as a stacked bar.
 
 ```html
 <stacked-bar field="Owner" val="Aperture"></stacked-bar>
@@ -290,6 +290,3 @@ You can define both the thickness of the ring (as a percentage) and the diameter
 | field     | **Required.** Field to plot as a ring. |
 | thickness     | Accepts a number. Width of ring, as percent of circle size. |
 | diameter    | Accepts a number. Size of ring, as percent of circle size. |
-
-
-
