@@ -1,4 +1,4 @@
-/*! angular-dimple - 2.0.1 - 2016-08-24
+/*! angular-dimple - 2.0.1 - 2017-01-09
 *   https://github.com/esripdx/angular-dimple
 *   Licensed ISC */
 angular.module('angular-dimple', [
@@ -283,8 +283,7 @@ angular.module('angular-dimple.graph', [])
           chart.data = dimple.filterData($scope.data, attrs.field, $scope.filters);
         }
 
-        if (attrs.filter !== undefined) {
-          console.log("i see a filter");
+        if (attrs.filter) {
           var thisFilter = attrs.filter.split(':');
           var field = thisFilter[0];
           var value = [thisFilter[1]];
@@ -560,6 +559,7 @@ angular.module('angular-dimple.x', [])
     link: function($scope, $element, $attrs, $controllers) {
       var graphController = $controllers[1];
       var chart = graphController.getChart();
+      var hide = $attrs.hide ? $attrs.hide.toLowerCase()==='true' : false;
 
       function addAxis () {
         if ($attrs.groupBy) {
@@ -604,6 +604,8 @@ angular.module('angular-dimple.x', [])
           }
         }
 
+        if(hide) x.hidden = true;
+
         if ($attrs.title && $attrs.title !== "null") {
           x.title = $attrs.title;
         } else if ($attrs.title == "null") {
@@ -632,6 +634,7 @@ angular.module('angular-dimple.y', [])
     link: function($scope, $element, $attrs, $controllers) {
       var graphController = $controllers[1];
       var chart = graphController.getChart();
+      var hide = $attrs.hide ? $attrs.hide.toLowerCase()==='true' : false;
 
       function addAxis () {
         if ($attrs.groupBy) {
@@ -675,6 +678,8 @@ angular.module('angular-dimple.y', [])
             y.addOrderRule($attrs.orderBy);
           }
         }
+
+        if(hide) y.hidden = true;
 
         if ($attrs.title && $attrs.title !== "null") {
           y.title = $attrs.title;
