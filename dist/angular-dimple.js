@@ -1,4 +1,4 @@
-/*! angular-dimple - 2.0.1 - 2017-01-09
+/*! angular-dimple - 2.0.1 - 2017-01-10
 *   https://github.com/esripdx/angular-dimple
 *   Licensed ISC */
 angular.module('angular-dimple', [
@@ -244,7 +244,7 @@ angular.module('angular-dimple.graph', [])
         filterValues = dimple.getUniqueValues($scope.data, legendField);
 
         // Add a click event to each rectangle
-        legend.shapes.selectAll("rect").on("click", function (e) {
+        legend.shapes.selectAll("rect").style("cursor", "pointer").on("click", function (e) {
           var hide = false;
           var newFilters = [];
 
